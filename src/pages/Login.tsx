@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { User, Lock, Mail } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -19,37 +19,59 @@ import {
 } from "@/components/ui/form";
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  rememberMe: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     
-    // This is where you would connect to your backend for authentication
-    console.log("Login attempt with:", values);
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Get stored users from localStorage
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find((u: any) => u.email === values.email);
+      
+      console.log("Login attempt with:", values);
+      
+      // Simulate API call with a short delay
+      setTimeout(() => {
+        if (user && user.password === values.password) {
+          // Login successful
+          const { password, ...userData } = user;
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+          
+          toast.success("Login successful!");
+          navigate('/');
+        } else {
+          // Login failed
+          toast.error("Invalid email or password");
+        }
+        setIsLoading(false);
+      }, 800);
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An error occurred. Please try again.");
       setIsLoading(false);
-      toast.success("Login successful!");
-      // Here you would typically redirect the user or update global auth state
-    }, 1500);
+    }
   };
 
   return (
@@ -112,17 +134,24 @@ const Login: React.FC = () => {
                   )}
                 />
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                      Remember me
-                    </label>
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="rememberMe"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            id="remember-me"
+                          />
+                        </FormControl>
+                        <FormLabel htmlFor="remember-me" className="text-sm font-normal">
+                          Remember me
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
                   <div className="text-sm">
                     <Link to="#" className="font-medium text-blue-600 hover:text-blue-500">
                       Forgot password?

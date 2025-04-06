@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,12 +19,16 @@ import {
 } from "@/components/ui/form";
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
   confirmPassword: z.string().min(8, { message: "Please confirm your password" }),
+  terms: z.boolean().refine(value => value === true, {
+    message: "You must agree to the terms and conditions"
+  })
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -34,6 +38,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -42,21 +47,44 @@ const Register: React.FC = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      terms: false
     },
   });
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     
-    // This is where you would connect to your backend for registration
-    console.log("Registration attempt with:", values);
-    
-    // Simulate API call
-    setTimeout(() => {
+    // Save user information to localStorage
+    try {
+      const { confirmPassword, terms, ...userData } = values;
+      
+      // Check if user already exists
+      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const userExists = existingUsers.some((user: any) => user.email === values.email);
+      
+      if (userExists) {
+        toast.error("Email already registered");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Save new user
+      const users = [...existingUsers, userData];
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      console.log("Registration successful with:", userData);
+      
+      // Simulate delay
+      setTimeout(() => {
+        setIsLoading(false);
+        toast.success("Account created successfully!");
+        navigate('/login');
+      }, 1000);
+    } catch (error) {
+      console.error("Registration error:", error);
       setIsLoading(false);
-      toast.success("Account created successfully!");
-      // Here you would typically redirect the user or update global auth state
-    }, 1500);
+      toast.error("Registration failed. Please try again.");
+    }
   };
 
   return (
@@ -163,24 +191,33 @@ const Register: React.FC = () => {
                     </FormItem>
                   )}
                 />
-                <div className="flex items-center">
-                  <input
-                    id="terms"
-                    name="terms"
-                    type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-                    I agree to the{' '}
-                    <Link to="#" className="font-medium text-blue-600 hover:text-blue-500">
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link to="#" className="font-medium text-blue-600 hover:text-blue-500">
-                      Privacy Policy
-                    </Link>
-                  </label>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="terms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value} 
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal">
+                          I agree to the{' '}
+                          <Link to="#" className="font-medium text-blue-600 hover:text-blue-500">
+                            Terms of Service
+                          </Link>{' '}
+                          and{' '}
+                          <Link to="#" className="font-medium text-blue-600 hover:text-blue-500">
+                            Privacy Policy
+                          </Link>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
                 <Button 
                   type="submit" 
                   className="w-full bg-blue-600 hover:bg-blue-700"
