@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { authAPI } from '@/services/api';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -46,30 +46,21 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Get stored users from localStorage
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find((u: any) => u.email === values.email);
+      const response = await authAPI.login({
+        email: values.email,
+        password: values.password
+      });
       
-      console.log("Login attempt with:", values);
+      // Store auth token and user data
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('currentUser', JSON.stringify(response.user));
       
-      // Simulate API call with a short delay
-      setTimeout(() => {
-        if (user && user.password === values.password) {
-          // Login successful
-          const { password, ...userData } = user;
-          localStorage.setItem('currentUser', JSON.stringify(userData));
-          
-          toast.success("Login successful!");
-          navigate('/');
-        } else {
-          // Login failed
-          toast.error("Invalid email or password");
-        }
-        setIsLoading(false);
-      }, 800);
+      toast.success("Login successful!");
+      navigate('/');
     } catch (error) {
-      console.error("Login error:", error);
-      toast.error("An error occurred. Please try again.");
+      // Error is already handled in the API service
+      console.error('Login failed:', error);
+    } finally {
       setIsLoading(false);
     }
   };

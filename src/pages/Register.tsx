@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { User, Lock, Mail, UserPlus } from 'lucide-react';
+import { User, Lock, Mail } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { authAPI } from '@/services/api';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -54,36 +54,20 @@ const Register: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     
-    // Save user information to localStorage
     try {
-      const { confirmPassword, terms, ...userData } = values;
+      await authAPI.register({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        password_confirmation: values.confirmPassword
+      });
       
-      // Check if user already exists
-      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      const userExists = existingUsers.some((user: any) => user.email === values.email);
-      
-      if (userExists) {
-        toast.error("Email already registered");
-        setIsLoading(false);
-        return;
-      }
-      
-      // Save new user
-      const users = [...existingUsers, userData];
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      console.log("Registration successful with:", userData);
-      
-      // Simulate delay
-      setTimeout(() => {
-        setIsLoading(false);
-        toast.success("Account created successfully!");
-        navigate('/login');
-      }, 1000);
+      toast.success("Account created successfully!");
+      navigate('/login');
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error('Registration failed:', error);
+    } finally {
       setIsLoading(false);
-      toast.error("Registration failed. Please try again.");
     }
   };
 

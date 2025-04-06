@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, ChevronDown, User } from 'lucide-react';
+import { authAPI } from '@/services/api';
+import { toast } from 'sonner';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,11 +36,23 @@ const Navbar: React.FC = () => {
     };
   }, []);
   
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    setCurrentUser(null);
-    navigate('/');
-    setIsOpen(false); // Close mobile menu if open
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      setCurrentUser(null);
+      navigate('/');
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Even if the API call fails, clear local data
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      setCurrentUser(null);
+    } finally {
+      setIsOpen(false); // Close mobile menu if open
+    }
   };
   
   return (
