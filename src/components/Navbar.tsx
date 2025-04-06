@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, ChevronDown } from 'lucide-react';
 
@@ -12,9 +13,9 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold text-blue-600">
+            <Link to="/" className="text-xl font-bold text-blue-600">
               Eventtia
-            </a>
+            </Link>
           </div>
           
           {/* Desktop Navigation */}
@@ -25,9 +26,9 @@ const Navbar: React.FC = () => {
                 <ChevronDown size={16} />
               </button>
               <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block">
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Virtual Events</a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">In-Person Events</a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Hybrid Events</a>
+                <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Virtual Events</Link>
+                <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">In-Person Events</Link>
+                <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Hybrid Events</Link>
               </div>
             </div>
             
@@ -37,19 +38,21 @@ const Navbar: React.FC = () => {
                 <ChevronDown size={16} />
               </button>
               <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block">
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Corporate Events</a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Conferences</a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Trade Shows</a>
+                <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Corporate Events</Link>
+                <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Conferences</Link>
+                <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Trade Shows</Link>
               </div>
             </div>
             
-            <a href="#" className="text-gray-600 hover:text-blue-600">Pricing</a>
-            <a href="#" className="text-gray-600 hover:text-blue-600">Resources</a>
+            <Link to="/pricing" className="text-gray-600 hover:text-blue-600">Pricing</Link>
+            <Link to="/resources" className="text-gray-600 hover:text-blue-600">Resources</Link>
+            <Link to="/about" className="text-gray-600 hover:text-blue-600">About</Link>
+            <Link to="/contact" className="text-gray-600 hover:text-blue-600">Contact</Link>
           </div>
           
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <a href="#" className="text-gray-600 hover:text-blue-600">Login</a>
+            <Link to="#" className="text-gray-600 hover:text-blue-600">Login</Link>
             <Button className="gradient-primary">
               Request Demo
             </Button>
@@ -69,11 +72,13 @@ const Navbar: React.FC = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden mt-4 pb-4">
-            <a href="#" className="block py-2 text-gray-600 hover:text-blue-600">Products</a>
-            <a href="#" className="block py-2 text-gray-600 hover:text-blue-600">Solutions</a>
-            <a href="#" className="block py-2 text-gray-600 hover:text-blue-600">Pricing</a>
-            <a href="#" className="block py-2 text-gray-600 hover:text-blue-600">Resources</a>
-            <a href="#" className="block py-2 text-gray-600 hover:text-blue-600">Login</a>
+            <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Products</Link>
+            <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Solutions</Link>
+            <Link to="/pricing" className="block py-2 text-gray-600 hover:text-blue-600">Pricing</Link>
+            <Link to="/resources" className="block py-2 text-gray-600 hover:text-blue-600">Resources</Link>
+            <Link to="/about" className="block py-2 text-gray-600 hover:text-blue-600">About</Link>
+            <Link to="/contact" className="block py-2 text-gray-600 hover:text-blue-600">Contact</Link>
+            <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Login</Link>
             <Button className="w-full mt-4 gradient-primary">
               Request Demo
             </Button>
