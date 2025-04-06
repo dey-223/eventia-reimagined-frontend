@@ -52,10 +52,12 @@ const Navbar: React.FC = () => {
           
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="#" className="text-gray-600 hover:text-blue-600">Login</Link>
-            <Button className="gradient-primary">
-              Request Demo
-            </Button>
+            <Link to="/login" className="text-gray-600 hover:text-blue-600">Login</Link>
+            <Link to="/register">
+              <Button className="gradient-primary">
+                Sign Up
+              </Button>
+            </Link>
           </div>
           
           {/* Mobile Menu Button */}
@@ -78,10 +80,12 @@ const Navbar: React.FC = () => {
             <Link to="/resources" className="block py-2 text-gray-600 hover:text-blue-600">Resources</Link>
             <Link to="/about" className="block py-2 text-gray-600 hover:text-blue-600">About</Link>
             <Link to="/contact" className="block py-2 text-gray-600 hover:text-blue-600">Contact</Link>
-            <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Login</Link>
-            <Button className="w-full mt-4 gradient-primary">
-              Request Demo
-            </Button>
+            <Link to="/login" className="block py-2 text-gray-600 hover:text-blue-600">Login</Link>
+            <Link to="/register">
+              <Button className="w-full mt-4 gradient-primary">
+                Sign Up
+              </Button>
+            </Link>
           </div>
         )}
       </div>
