@@ -25,7 +25,7 @@ const formSchema = z.object({
   date: z.string().min(1, { message: 'Date is required' }),
   time: z.string().min(1, { message: 'Time is required' }),
   location: z.string().min(3, { message: 'Location must be at least 3 characters' }),
-  capacity: z.string().transform((val) => parseInt(val, 10) || 0),
+  capacity: z.coerce.number().min(1, { message: 'Capacity must be at least 1' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -42,7 +42,7 @@ const CreateEvent: React.FC = () => {
       date: '',
       time: '',
       location: '',
-      capacity: '100',
+      capacity: 100,
     },
   });
 
