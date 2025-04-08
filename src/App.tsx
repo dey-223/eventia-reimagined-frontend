@@ -18,6 +18,8 @@ import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import EventsList from "./pages/EventsList";
 import CreateEvent from "./pages/CreateEvent";
+import EventDetail from "./pages/EventDetail";
+import EditEvent from "./pages/EditEvent";
 import DashboardSettings from "./pages/DashboardSettings";
 
 const queryClient = new QueryClient();
@@ -42,6 +44,8 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="events" element={<EventsList />} />
             <Route path="events/create" element={<CreateEvent />} />
+            <Route path="events/:id" element={<EventDetail />} />
+            <Route path="events/:id/edit" element={<EditEvent />} />
             <Route path="settings" element={<DashboardSettings />} />
           </Route>
           
