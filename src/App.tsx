@@ -13,6 +13,13 @@ import Resources from "./pages/Resources";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
+// Dashboard related imports
+import DashboardLayout from "./components/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
+import EventsList from "./pages/EventsList";
+import CreateEvent from "./pages/CreateEvent";
+import DashboardSettings from "./pages/DashboardSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -29,6 +36,15 @@ const App = () => (
           <Route path="/resources" element={<Resources />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Dashboard Routes */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="events" element={<EventsList />} />
+            <Route path="events/create" element={<CreateEvent />} />
+            <Route path="settings" element={<DashboardSettings />} />
+          </Route>
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
