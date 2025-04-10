@@ -21,6 +21,7 @@ import CreateEvent from "./pages/CreateEvent";
 import EventDetail from "./pages/EventDetail";
 import EditEvent from "./pages/EditEvent";
 import DashboardSettings from "./pages/DashboardSettings";
+import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />

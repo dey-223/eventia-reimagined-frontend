@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, ChevronDown, User } from 'lucide-react';
 import { authAPI } from '@/services/api';
@@ -9,9 +10,10 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
-    // Check if user is logged in on component mount and when localStorage changes
+    // Check if user is logged in on component mount, route changes, and when localStorage changes
     const checkUser = () => {
       const userStr = localStorage.getItem('currentUser');
       if (userStr) {
@@ -31,10 +33,11 @@ const Navbar: React.FC = () => {
     
     // Listen for storage changes (in case user logs in/out in another tab)
     window.addEventListener('storage', checkUser);
+    
     return () => {
       window.removeEventListener('storage', checkUser);
     };
-  }, []);
+  }, [location.pathname]); // Re-run when the route changes
   
   const handleLogout = async () => {
     try {
@@ -54,6 +57,14 @@ const Navbar: React.FC = () => {
       setIsOpen(false); // Close mobile menu if open
     }
   };
+  
+  // Check if we're in the dashboard section
+  const isDashboard = location.pathname.startsWith('/dashboard');
+  
+  // Don't render navbar on dashboard pages as it's already handled by DashboardLayout
+  if (isDashboard) {
+    return null;
+  }
   
   return (
     <nav className="w-full py-4 bg-white shadow-sm fixed top-0 z-50">
@@ -108,8 +119,8 @@ const Navbar: React.FC = () => {
                   <ChevronDown size={16} />
                 </button>
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block">
-                  <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Profile</Link>
-                  <Link to="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">My Events</Link>
+                  <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Dashboard</Link>
+                  <Link to="/dashboard/events" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">My Events</Link>
                   <button 
                     onClick={handleLogout}
                     className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
@@ -157,8 +168,8 @@ const Navbar: React.FC = () => {
                   <User size={20} className="text-gray-600" />
                   <span className="font-medium">{currentUser.name}</span>
                 </div>
-                <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Profile</Link>
-                <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">My Events</Link>
+                <Link to="/dashboard" className="block py-2 text-gray-600 hover:text-blue-600">Dashboard</Link>
+                <Link to="/dashboard/events" className="block py-2 text-gray-600 hover:text-blue-600">My Events</Link>
                 <button 
                   onClick={handleLogout}
                   className="block w-full text-left py-2 text-red-600 hover:text-red-700"

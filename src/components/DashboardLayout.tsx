@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -10,17 +10,76 @@ import {
   X, 
   ChevronRight,
   Users,
-  BarChart
+  BarChart,
+  User,
+  LogOut
 } from 'lucide-react';
-import Navbar from './Navbar';
 import Footer from './Footer';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { authAPI } from '@/services/api';
+import { toast } from 'sonner';
+import { Separator } from './ui/separator';
 
 const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Check if user is logged in
+    const checkUser = () => {
+      const userStr = localStorage.getItem('currentUser');
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        // Redirect to login if no token found
+        navigate('/login');
+        return;
+      }
+      
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          setCurrentUser(user);
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+          setCurrentUser(null);
+          navigate('/login');
+        }
+      } else {
+        setCurrentUser(null);
+        navigate('/login');
+      }
+    };
+    
+    checkUser();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', checkUser);
+    
+    return () => {
+      window.removeEventListener('storage', checkUser);
+    };
+  }, [navigate]);
+  
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      navigate('/');
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Even if the API call fails, clear local data
+      localStorage.removeItem('token');
+      localStorage.removeItem('currentUser');
+      navigate('/');
+    }
+  };
   
   const navItems = [
     {
@@ -84,19 +143,58 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex-grow flex">
+      {/* Dashboard Header */}
+      <header className="bg-white border-b border-gray-200 py-3 px-4 md:px-6 fixed top-0 left-0 right-0 z-30">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <Link to="/" className="text-xl font-bold text-blue-600 mr-8">
+              Eventtia
+            </Link>
+            <h1 className="text-lg font-semibold text-gray-800 hidden md:block">Dashboard</h1>
+          </div>
+          
+          {currentUser && (
+            <div className="flex items-center space-x-4">
+              <div className="relative group">
+                <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600">
+                  <User size={18} />
+                  <span className="hidden md:inline">{currentUser.name}</span>
+                  <ChevronRight size={16} className="transform group-hover:rotate-90 transition-transform" />
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="font-medium">{currentUser.name}</p>
+                    <p className="text-sm text-gray-500">{currentUser.email}</p>
+                  </div>
+                  <Link to="/dashboard/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">
+                    Account Settings
+                  </Link>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    Log out
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+      
+      <div className="flex-grow flex pt-[57px]">
         {/* Desktop Sidebar */}
         <aside 
           className={cn(
-            "bg-white border-r border-gray-200 transition-all duration-300 ease-in-out hidden md:block",
+            "bg-white border-r border-gray-200 transition-all duration-300 ease-in-out hidden md:block fixed top-[57px] bottom-0 left-0 z-20",
             isSidebarOpen ? "w-64" : "w-20"
           )}
         >
           <div className="h-full flex flex-col">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className={cn("font-semibold text-gray-800", !isSidebarOpen && "hidden")}>
-                Dashboard
+                Navigation
               </h2>
               <Button 
                 variant="ghost" 
@@ -107,7 +205,7 @@ const DashboardLayout: React.FC = () => {
                 {isSidebarOpen ? <ChevronRight className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
-            <nav className="p-4 space-y-1 flex-grow">
+            <nav className="p-4 space-y-1 flex-grow overflow-y-auto">
               {navItems.map((item) => (
                 <div key={item.path}>
                   <Link 
@@ -174,9 +272,9 @@ const DashboardLayout: React.FC = () => {
         {isMobileSidebarOpen && (
           <div className="fixed inset-0 z-40">
             <div className="absolute inset-0 bg-black bg-opacity-50" onClick={toggleMobileSidebar}></div>
-            <div className="absolute left-0 top-0 w-64 h-full bg-white shadow-lg">
+            <div className="absolute left-0 top-0 w-64 h-full bg-white shadow-lg pt-[57px]">
               <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 className="font-semibold text-gray-800">Dashboard</h2>
+                <h2 className="font-semibold text-gray-800">Navigation</h2>
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -240,8 +338,9 @@ const DashboardLayout: React.FC = () => {
 
         {/* Main content */}
         <main className={cn(
-          "flex-1 bg-gray-50 overflow-auto transition-all duration-300 ease-in-out",
-          isMobileSidebarOpen ? "blur-sm md:blur-none" : ""
+          "flex-1 bg-gray-50 overflow-auto transition-all duration-300 ease-in-out pt-4 ml-0 md:ml-20",
+          isMobileSidebarOpen ? "blur-sm md:blur-none" : "",
+          isSidebarOpen && "md:ml-64"
         )}>
           <div className="container mx-auto p-6 pb-24 md:pb-6">
             <Outlet />
