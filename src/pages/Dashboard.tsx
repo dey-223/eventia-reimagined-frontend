@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import DashboardLayout from '@/components/DashboardLayout';
 
 interface EventSummary {
   id: number;
@@ -27,7 +28,7 @@ interface EventSummary {
   status: 'upcoming' | 'ongoing' | 'past' | 'cancelled';
 }
 
-const Dashboard: React.FC = () => {
+const DashboardContent: React.FC = () => {
   // Sample data that would come from your Laravel API
   const eventStats = {
     totalEvents: 12,
@@ -307,6 +308,15 @@ const Dashboard: React.FC = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+// Wrap the content in the layout
+const Dashboard: React.FC = () => {
+  return (
+    <DashboardLayout>
+      <DashboardContent />
+    </DashboardLayout>
   );
 };
 

@@ -14,7 +14,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 // Dashboard related imports
-import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import EventsList from "./pages/EventsList";
 import CreateEvent from "./pages/CreateEvent";
@@ -41,15 +40,13 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="events" element={<EventsList />} />
-            <Route path="events/create" element={<CreateEvent />} />
-            <Route path="events/:id" element={<EventDetail />} />
-            <Route path="events/:id/edit" element={<EditEvent />} />
-            <Route path="settings" element={<DashboardSettings />} />
-          </Route>
+          {/* Dashboard Routes - No longer nested within Layout */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/events" element={<EventsList />} />
+          <Route path="/dashboard/events/create" element={<CreateEvent />} />
+          <Route path="/dashboard/events/:id" element={<EventDetail />} />
+          <Route path="/dashboard/events/:id/edit" element={<EditEvent />} />
+          <Route path="/dashboard/settings" element={<DashboardSettings />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

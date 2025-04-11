@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -33,7 +33,12 @@ interface SidebarNavItem {
   }[];
 }
 
-const DashboardLayout: React.FC = () => {
+// Added children prop to the component
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const location = useLocation();
@@ -356,14 +361,14 @@ const DashboardLayout: React.FC = () => {
           </div>
         )}
 
-        {/* Main content */}
+        {/* Main content - Changed from Outlet to children */}
         <main className={cn(
           "flex-1 bg-gray-50 overflow-auto transition-all duration-300 ease-in-out pt-4 ml-0 md:ml-20",
           isMobileSidebarOpen ? "blur-sm md:blur-none" : "",
           isSidebarOpen && "md:ml-64"
         )}>
           <div className="container mx-auto p-6 pb-24 md:pb-6">
-            <Outlet />
+            {children}
           </div>
         </main>
       </div>
