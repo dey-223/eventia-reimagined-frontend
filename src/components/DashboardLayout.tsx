@@ -43,49 +43,54 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  // Use a mock user for testing purposes
+  const [currentUser, setCurrentUser] = useState<any>({
+    name: "Test User",
+    email: "test@example.com"
+  });
   
-  // Auth handling
+  // Temporarily disabled auth handling
   React.useEffect(() => {
-    // Check if user is logged in
-    const checkUser = () => {
-      const userStr = localStorage.getItem('currentUser');
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        // Redirect to login if no token found
-        navigate('/login');
-        return;
-      }
-      
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          setCurrentUser(user);
-        } catch (e) {
-          console.error("Error parsing user data:", e);
-          setCurrentUser(null);
-          navigate('/login');
-        }
-      } else {
-        setCurrentUser(null);
-        navigate('/login');
-      }
-    };
-    
-    checkUser();
-    
-    // Listen for storage changes
-    window.addEventListener('storage', checkUser);
-    
-    return () => {
-      window.removeEventListener('storage', checkUser);
-    };
+    // TEMPORARILY DISABLED: Authentication check
+    // const checkUser = () => {
+    //   const userStr = localStorage.getItem('currentUser');
+    //   const token = localStorage.getItem('token');
+    //   
+    //   if (!token) {
+    //     // Redirect to login if no token found
+    //     navigate('/login');
+    //     return;
+    //   }
+    //   
+    //   if (userStr) {
+    //     try {
+    //       const user = JSON.parse(userStr);
+    //       setCurrentUser(user);
+    //     } catch (e) {
+    //       console.error("Error parsing user data:", e);
+    //       setCurrentUser(null);
+    //       navigate('/login');
+    //     }
+    //   } else {
+    //     setCurrentUser(null);
+    //     navigate('/login');
+    //   }
+    // };
+    // 
+    // checkUser();
+    // 
+    // // Listen for storage changes
+    // window.addEventListener('storage', checkUser);
+    // 
+    // return () => {
+    //   window.removeEventListener('storage', checkUser);
+    // };
   }, [navigate]);
 
   const handleLogout = async () => {
     try {
-      await authAPI.logout();
+      // Temporarily disabled actual logout
+      // await authAPI.logout();
       localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
       navigate('/');
