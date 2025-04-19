@@ -22,9 +22,10 @@ import EditEvent from "./pages/EditEvent";
 import DashboardSettings from "./pages/DashboardSettings";
 import Navbar from "./components/Navbar";
 
-// New pages
-import EventProgram from "./pages/EventProgram";
-import EventRegistration from "./pages/EventRegistration";
+// New pages for events
+import Events from "./pages/Events";
+import EventParticipants from "./pages/EventParticipants";
+import EventSignup from "./pages/EventSignup";
 
 const queryClient = new QueryClient();
 
@@ -44,19 +45,19 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
-          {/* New public routes */}
-          <Route path="/event-program" element={<EventProgram />} />
-          <Route path="/register-event/:id" element={<EventRegistration />} />
+          {/* Public Event Routes */}
+          <Route path="/events" element={<Events />} />
+          <Route path="/events/:id/participants" element={<EventParticipants />} />
+          <Route path="/events/:id/signup" element={<EventSignup />} />
 
-          {/* Dashboard Routes - No longer nested within Layout */}
+          {/* Dashboard Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/events" element={<EventsList />} />
           <Route path="/dashboard/events/create" element={<CreateEvent />} />
           <Route path="/dashboard/events/:id" element={<EventDetail />} />
-          <Route path="/dashboard/events/:id/edit" element={<EditEvent />} />
+          <Route path="/dashboard/events/:id/edit" element={<EditEdit />} />
           <Route path="/dashboard/settings" element={<DashboardSettings />} />
           
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
