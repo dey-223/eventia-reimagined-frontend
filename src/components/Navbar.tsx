@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -75,9 +74,9 @@ const Navbar: React.FC = () => {
             <ProductsMenu />
             <SolutionsMenu />
             
-            <Link to="/event-program" className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
+            <Link to="/events" className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
               <Calendar size={16} className="inline" />
-              <span>Program</span>
+              <span>Événements</span>
             </Link>
             
             <Link to="/pricing" className="text-gray-600 hover:text-blue-600">Pricing</Link>
