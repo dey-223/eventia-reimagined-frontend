@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, User } from 'lucide-react';
+import { Menu, X, ChevronDown, User, Calendar } from 'lucide-react';
 import { authAPI } from '@/services/api';
 import { toast } from 'sonner';
 
@@ -103,6 +103,11 @@ const Navbar: React.FC = () => {
               </div>
             </div>
             
+            <Link to="/event-program" className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
+              <Calendar size={16} className="inline" />
+              <span>Program</span>
+            </Link>
+            
             <Link to="/pricing" className="text-gray-600 hover:text-blue-600">Pricing</Link>
             <Link to="/resources" className="text-gray-600 hover:text-blue-600">Resources</Link>
             <Link to="/about" className="text-gray-600 hover:text-blue-600">About</Link>
@@ -157,6 +162,10 @@ const Navbar: React.FC = () => {
           <div className="md:hidden mt-4 pb-4">
             <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Products</Link>
             <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Solutions</Link>
+            <Link to="/event-program" className="flex items-center py-2 text-gray-600 hover:text-blue-600">
+              <Calendar size={16} className="mr-1" />
+              <span>Program</span>
+            </Link>
             <Link to="/pricing" className="block py-2 text-gray-600 hover:text-blue-600">Pricing</Link>
             <Link to="/resources" className="block py-2 text-gray-600 hover:text-blue-600">Resources</Link>
             <Link to="/about" className="block py-2 text-gray-600 hover:text-blue-600">About</Link>

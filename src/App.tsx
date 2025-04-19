@@ -22,6 +22,10 @@ import EditEvent from "./pages/EditEvent";
 import DashboardSettings from "./pages/DashboardSettings";
 import Navbar from "./components/Navbar";
 
+// New pages
+import EventProgram from "./pages/EventProgram";
+import EventRegistration from "./pages/EventRegistration";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -39,6 +43,10 @@ const App = () => (
           <Route path="/resources" element={<Resources />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* New public routes */}
+          <Route path="/event-program" element={<EventProgram />} />
+          <Route path="/register-event/:id" element={<EventRegistration />} />
 
           {/* Dashboard Routes - No longer nested within Layout */}
           <Route path="/dashboard" element={<Dashboard />} />
