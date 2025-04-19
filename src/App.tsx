@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,7 +54,7 @@ const App = () => (
           <Route path="/dashboard/events" element={<EventsList />} />
           <Route path="/dashboard/events/create" element={<CreateEvent />} />
           <Route path="/dashboard/events/:id" element={<EventDetail />} />
-          <Route path="/dashboard/events/:id/edit" element={<EditEdit />} />
+          <Route path="/dashboard/events/:id/edit" element={<EditEvent />} />
           <Route path="/dashboard/settings" element={<DashboardSettings />} />
           
           <Route path="*" element={<NotFound />} />
