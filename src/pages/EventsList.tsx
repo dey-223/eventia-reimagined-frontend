@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,9 @@ import {
   Pencil, 
   Trash2, 
   ArrowUpDown,
-  Download
+  Download,
+  ImageIcon,
+  X
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +27,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from 'sonner';
 import { 
   Select,
@@ -33,6 +43,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { eventAPI } from '@/services/api';
 
 // Event type definition
 interface Event {
@@ -45,9 +56,19 @@ interface Event {
   registered: number;
   status: 'upcoming' | 'ongoing' | 'past' | 'cancelled';
   category: string;
+  image?: string;
+}
+
+interface Participant {
+  id: number;
+  name: string;
+  email: string;
+  registrationDate: string;
+  attended: boolean;
 }
 
 const EventsList: React.FC = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([
     // Sample data - this would come from your Laravel API in a real app
     {
@@ -59,7 +80,8 @@ const EventsList: React.FC = () => {
       capacity: 500,
       registered: 342,
       status: 'upcoming',
-      category: 'conference'
+      category: 'conference',
+      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=500'
     },
     {
       id: 2,
@@ -70,7 +92,8 @@ const EventsList: React.FC = () => {
       capacity: 100,
       registered: 78,
       status: 'upcoming',
-      category: 'networking'
+      category: 'networking',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500'
     },
     {
       id: 3,
@@ -81,7 +104,8 @@ const EventsList: React.FC = () => {
       capacity: 50,
       registered: 50,
       status: 'ongoing',
-      category: 'workshop'
+      category: 'workshop',
+      image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&q=80&w=500'
     },
     {
       id: 4,
@@ -98,16 +122,75 @@ const EventsList: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
+  const [participantsDialogOpen, setParticipantsDialogOpen] = useState(false);
+  const [currentEventParticipants, setCurrentEventParticipants] = useState<Participant[]>([]);
+  const [currentEventId, setCurrentEventId] = useState<number | null>(null);
 
-  const handleDelete = (id: number) => {
+  const openDeleteDialog = (id: number) => {
+    setEventToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = () => {
     // In a real app, you would call your API to delete the event
-    setEvents(events.filter(event => event.id !== id));
-    toast.success('Event deleted successfully');
+    if (eventToDelete !== null) {
+      setEvents(events.filter(event => event.id !== eventToDelete));
+      setDeleteDialogOpen(false);
+      setEventToDelete(null);
+      toast.success('Event deleted successfully');
+    }
   };
 
   const handleExport = () => {
     // In a real app, you would generate a CSV or PDF export
     toast.success('Events exported successfully');
+  };
+
+  const handleViewParticipants = (eventId: number) => {
+    // In a real app, you would fetch participants from API
+    const mockParticipants = [
+      {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        registrationDate: "2025-01-15",
+        attended: true
+      },
+      {
+        id: 2,
+        name: "Jane Smith",
+        email: "jane@example.com",
+        registrationDate: "2025-01-20",
+        attended: false
+      },
+      {
+        id: 3,
+        name: "Mike Johnson",
+        email: "mike@example.com",
+        registrationDate: "2025-02-01",
+        attended: true
+      }
+    ];
+    
+    setCurrentEventParticipants(mockParticipants);
+    setCurrentEventId(eventId);
+    setParticipantsDialogOpen(true);
+  };
+
+  const handleRemoveParticipant = (participantId: number) => {
+    setCurrentEventParticipants(participants => 
+      participants.filter(p => p.id !== participantId)
+    );
+    toast.success('Participant removed successfully');
+  };
+
+  const handleCancelEvent = (eventId: number) => {
+    setEvents(prevEvents => prevEvents.map(event => 
+      event.id === eventId ? {...event, status: 'cancelled'} : event
+    ));
+    toast.success('Event cancelled successfully');
   };
 
   // Filter events based on search term and status filter
@@ -192,14 +275,27 @@ const EventsList: React.FC = () => {
                   <TableHead>Location</TableHead>
                   <TableHead>Capacity</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[120px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredEvents.length > 0 ? (
                   filteredEvents.map(event => (
                     <TableRow key={event.id}>
-                      <TableCell className="font-medium">{event.title}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center">
+                          {event.image && (
+                            <div className="h-10 w-10 rounded overflow-hidden mr-3 flex-shrink-0">
+                              <img 
+                                src={event.image} 
+                                alt={event.title} 
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          )}
+                          {event.title}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {new Date(event.date).toLocaleDateString()} at {event.time}
                       </TableCell>
@@ -225,7 +321,7 @@ const EventsList: React.FC = () => {
                               Actions
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel>Event Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
@@ -238,10 +334,28 @@ const EventsList: React.FC = () => {
                                 <Pencil className="mr-2 h-4 w-4" /> Edit Event
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem>
                               <button 
                                 className="flex w-full items-center"
-                                onClick={() => handleDelete(event.id)}
+                                onClick={() => handleViewParticipants(event.id)}
+                              >
+                                <User className="mr-2 h-4 w-4" /> Participants
+                              </button>
+                            </DropdownMenuItem>
+                            {event.status !== 'cancelled' && (
+                              <DropdownMenuItem>
+                                <button 
+                                  className="flex w-full items-center text-orange-600"
+                                  onClick={() => handleCancelEvent(event.id)}
+                                >
+                                  <X className="mr-2 h-4 w-4" /> Cancel Event
+                                </button>
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem>
+                              <button 
+                                className="flex w-full items-center text-red-600"
+                                onClick={() => openDeleteDialog(event.id)}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                               </button>
@@ -271,6 +385,85 @@ const EventsList: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Event Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Event</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this event? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete Event
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Participants Dialog */}
+      <Dialog open={participantsDialogOpen} onOpenChange={setParticipantsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Event Participants
+              {currentEventId && ` (${events.find(e => e.id === currentEventId)?.title})`}
+            </DialogTitle>
+            <DialogDescription>
+              Manage participants for this event.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Registration Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentEventParticipants.length > 0 ? (
+                  currentEventParticipants.map(participant => (
+                    <TableRow key={participant.id}>
+                      <TableCell className="font-medium">{participant.name}</TableCell>
+                      <TableCell>{participant.email}</TableCell>
+                      <TableCell>{new Date(participant.registrationDate).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge className={participant.attended ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                          {participant.attended ? "Attended" : "Registered"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="p-1 h-8 w-8" 
+                          onClick={() => handleRemoveParticipant(participant.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-20 text-center">
+                      No participants found for this event.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -6,7 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, ArrowLeft, User, Calendar, MapPin } from 'lucide-react';
+import { Search, ArrowLeft, User, Calendar, MapPin, Trash2, Check, X } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from 'sonner';
 
 interface Participant {
   id: number;
@@ -33,6 +42,8 @@ const EventParticipants: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [event, setEvent] = useState<Event | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [participantToDelete, setParticipantToDelete] = useState<number | null>(null);
   
   // Fetch event data - in a real app this would come from an API
   useEffect(() => {
@@ -101,6 +112,34 @@ const EventParticipants: React.FC = () => {
       year: 'numeric'
     });
   };
+
+  const openDeleteDialog = (participantId: number) => {
+    setParticipantToDelete(participantId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteParticipant = () => {
+    if (participantToDelete === null) return;
+    
+    // In a real app, this would call your API
+    setParticipants(prev => prev.filter(p => p.id !== participantToDelete));
+    toast.success('Participant removed successfully');
+    setDeleteDialogOpen(false);
+    setParticipantToDelete(null);
+  };
+
+  const handleToggleAttendance = (participantId: number) => {
+    setParticipants(prevParticipants => 
+      prevParticipants.map(p => 
+        p.id === participantId ? { ...p, attended: !p.attended } : p
+      )
+    );
+    
+    const participant = participants.find(p => p.id === participantId);
+    if (participant) {
+      toast.success(`Attendance status updated for ${participant.name}`);
+    }
+  };
   
   const filteredParticipants = participants.filter(participant => 
     participant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -146,7 +185,13 @@ const EventParticipants: React.FC = () => {
       
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Liste des Participants</CardTitle>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <CardTitle>Liste des Participants</CardTitle>
+            <Button variant="outline" size="sm" className="mt-2 sm:mt-0">
+              <Calendar className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
+          </div>
           <div className="relative mt-4">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input
@@ -167,6 +212,7 @@ const EventParticipants: React.FC = () => {
                   <TableHead>Entreprise</TableHead>
                   <TableHead>Date d'inscription</TableHead>
                   <TableHead>Statut</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -182,11 +228,36 @@ const EventParticipants: React.FC = () => {
                           {participant.attended ? "Présent" : "Non confirmé"}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            title={participant.attended ? "Mark as not attended" : "Mark as attended"}
+                            onClick={() => handleToggleAttendance(participant.id)}
+                          >
+                            {participant.attended ? 
+                              <X className="h-4 w-4 text-gray-500" /> : 
+                              <Check className="h-4 w-4 text-green-500" />
+                            }
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            title="Delete participant"
+                            onClick={() => openDeleteDialog(participant.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       <div className="flex flex-col items-center justify-center text-gray-500">
                         <User className="h-8 w-8 mb-2" />
                         <span>Aucun participant trouvé</span>
@@ -199,6 +270,24 @@ const EventParticipants: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Participant Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Supprimer le participant</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce participant ? Cette action ne peut pas être annulée.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Annuler</Button>
+            <Button variant="destructive" onClick={handleDeleteParticipant}>
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

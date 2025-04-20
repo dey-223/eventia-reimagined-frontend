@@ -31,7 +31,9 @@ import {
   Users, 
   Tags, 
   Loader2, 
-  ArrowLeft 
+  ArrowLeft,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 
@@ -47,6 +49,8 @@ const formSchema = z.object({
   category: z.string().min(1, { message: 'Please select a category' }),
   ticketPrice: z.coerce.number().min(0, { message: 'Ticket price must be a positive number' }),
   status: z.enum(['upcoming', 'ongoing', 'past', 'cancelled']),
+  isOnline: z.boolean().default(false),
+  isPrivate: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -55,6 +59,8 @@ const EditEvent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -69,6 +75,8 @@ const EditEvent: React.FC = () => {
       category: '',
       ticketPrice: 0,
       status: 'upcoming',
+      isOnline: false,
+      isPrivate: false,
     },
   });
 
@@ -87,20 +95,39 @@ const EditEvent: React.FC = () => {
         category: 'conference',
         ticketPrice: 299.99,
         status: 'upcoming',
+        isOnline: false,
+        isPrivate: false,
+        image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=500',
       };
       
       form.reset(eventData as FormValues);
+      setImagePreview(eventData.image);
       setIsLoading(false);
     }, 1000);
   }, [form, id]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const updateEventMutation = useMutation({
-    mutationFn: (values: FormValues) => {
-      // In a real app, this would call the API
+    mutationFn: async (values: FormValues) => {
+      // In a real app, this would call the API and upload the image if changed
       console.log('Updating event with values:', values);
-      return new Promise<{ success: boolean }>(resolve => {
-        setTimeout(() => resolve({ success: true }), 1500);
-      });
+      console.log('Selected image:', selectedImage);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      return { success: true };
       // return eventAPI.updateEvent(id, values);
     },
     onSuccess: () => {
@@ -150,6 +177,49 @@ const EditEvent: React.FC = () => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="mb-6">
+                <FormLabel>Event Image</FormLabel>
+                <div className="mt-2 flex items-center">
+                  <div className="relative w-full">
+                    <div className={`border-2 border-dashed rounded-lg p-4 text-center ${imagePreview ? 'border-green-500' : 'border-gray-300'}`}>
+                      {imagePreview ? (
+                        <div className="relative">
+                          <img 
+                            src={imagePreview} 
+                            alt="Event preview" 
+                            className="mx-auto h-40 w-full object-cover rounded"
+                          />
+                          <Button 
+                            type="button"
+                            variant="outline" 
+                            size="sm"
+                            className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full bg-white"
+                            onClick={() => {
+                              setSelectedImage(null);
+                              setImagePreview(null);
+                            }}
+                          >
+                            <X size={16} />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-4">
+                          <ImageIcon className="h-12 w-12 text-gray-400" />
+                          <p className="mt-2 text-sm text-gray-500">Click to upload event image</p>
+                          <p className="text-xs text-gray-400">PNG, JPG up to 5MB</p>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={handleImageChange}
+                        accept="image/*"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <FormField
                 control={form.control}
                 name="title"

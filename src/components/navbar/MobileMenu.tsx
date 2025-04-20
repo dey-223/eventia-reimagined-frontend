@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, User } from 'lucide-react';
+import { Calendar, User, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface MobileMenuProps {
@@ -32,6 +32,13 @@ const MobileMenu = ({ currentUser, onLogout, setIsOpen }: MobileMenuProps) => {
           </div>
           <Link to="/dashboard" className="block py-2 text-gray-600 hover:text-blue-600">Dashboard</Link>
           <Link to="/dashboard/events" className="block py-2 text-gray-600 hover:text-blue-600">My Events</Link>
+          <Link 
+            to="/dashboard/events/create" 
+            className="block py-2 text-gray-600 hover:text-blue-600"
+            onClick={() => setIsOpen(false)}
+          >
+            Create Event
+          </Link>
           <button 
             onClick={() => {
               onLogout();
