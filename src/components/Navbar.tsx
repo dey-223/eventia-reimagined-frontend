@@ -83,11 +83,6 @@ const Navbar: React.FC = () => {
             <Link to="/resources" className="text-gray-600 hover:text-blue-600">Resources</Link>
             <Link to="/about" className="text-gray-600 hover:text-blue-600">About</Link>
             <Link to="/contact" className="text-gray-600 hover:text-blue-600">Contact</Link>
-            
-            <Link to="/events" className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
-              <Calendar size={16} className="inline" />
-              <span>Événements</span>
-            </Link>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">

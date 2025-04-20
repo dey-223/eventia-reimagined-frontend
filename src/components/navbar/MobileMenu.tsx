@@ -15,18 +15,14 @@ const MobileMenu = ({ currentUser, onLogout, setIsOpen }: MobileMenuProps) => {
     <div className="md:hidden mt-4 pb-4">
       <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Products</Link>
       <Link to="#" className="block py-2 text-gray-600 hover:text-blue-600">Solutions</Link>
-      <Link to="/event-program" className="flex items-center py-2 text-gray-600 hover:text-blue-600">
+      <Link to="/events" className="flex items-center py-2 text-gray-600 hover:text-blue-600">
         <Calendar size={16} className="mr-1" />
-        <span>Program</span>
+        <span>Événements</span>
       </Link>
       <Link to="/pricing" className="block py-2 text-gray-600 hover:text-blue-600">Pricing</Link>
       <Link to="/resources" className="block py-2 text-gray-600 hover:text-blue-600">Resources</Link>
       <Link to="/about" className="block py-2 text-gray-600 hover:text-blue-600">About</Link>
       <Link to="/contact" className="block py-2 text-gray-600 hover:text-blue-600">Contact</Link>
-      
-      <Link to="/events" className="block py-2 text-gray-600 hover:text-blue-600">
-        Événements
-      </Link>
       
       {currentUser ? (
         <div className="border-t border-gray-200 mt-2 pt-2">
