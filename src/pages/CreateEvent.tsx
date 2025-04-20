@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Clock, Users, Tags, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Tags, Image as ImageIcon, Loader2, X } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { eventAPI } from '@/services/api';
 
